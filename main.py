@@ -22,8 +22,7 @@ def main(t):
 
         req_obj.setUserInfo(cookies,view_state)
         reporter.setRequester(req_obj)
-
-        # reporter.PreviousReport('2020-12-16')
+        # reporter.PreviousReport('2020-12-20')
         if t:
             reporter.SunReport(today)
         else:
@@ -43,6 +42,6 @@ def run():
 
 
 if __name__ == "__main__":
-    main(1)
-    # run()
+    # main(1)
+    run()
 

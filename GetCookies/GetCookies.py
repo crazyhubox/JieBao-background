@@ -6,6 +6,7 @@ import asyncio
 from typing import Dict, List
 import datetime
 from os import system
+from time import sleep
 
 class GetCookies:
     """
