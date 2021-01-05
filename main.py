@@ -1,33 +1,38 @@
-from GetCookies import GetCookies
+# from GetCookies import GetCookies
+from requests.models import HTTPError
+from GetCookies import Login,getViewState
 from Requets import PostRequest
 from Reporter import Reporter
 import schedule
 from time import sleep
 from datetime import date,datetime
-from getUserFromRedis import ReadUserInfo
+from getUserFromRedis import UserInfoRedis
 
 def main(t):    
     today = date.today()
-    accounts = ReadUserInfo()
-    cookie_obj = GetCookies(...,...)
+    accounts = UserInfoRedis()
+    loginer = Login(...,...)
     req_obj = PostRequest()
     reporter = Reporter()
     
-    for user, passw in accounts.items():
+    for user, passw in accounts.ReadUserInfo():
         print('[INFO]:',user)
-        cookie_obj.setUserInfo(username=user,password=passw)
+        loginer.setUserInfo(username=user,password=passw)
 
-        cookies = cookie_obj.cookies()
-        view_state = cookie_obj.viewstate()
-
-        req_obj.setUserInfo(cookies,view_state)
-        reporter.setRequester(req_obj)
-        # reporter.PreviousReport('2020-12-20')
-        if t:
-            reporter.SunReport(today)
-        else:
-            reporter.MoonRepot(today)
-        print('='*100)
+        try:
+            cookies = loginer.getCookie()
+            view_state = getViewState(cookies)
+            req_obj.setUserInfo(cookies,view_state)
+            reporter.setRequester(req_obj)
+            # reporter.PreviousReport('2020-12-31')
+            if t:
+                reporter.SunReport(today)
+            else:
+                reporter.MoonRepot(today)
+            print('='*100)
+        except:
+            accounts.recoverErroUer()
+            
         sleep(3)
     print('[Finished]:',datetime.now())
 
@@ -42,6 +47,7 @@ def run():
 
 
 if __name__ == "__main__":
-    # main(1)
-    run()
+    for i in range(50):
+        main(1)
+    # run()
 

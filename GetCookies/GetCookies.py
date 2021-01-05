@@ -4,9 +4,11 @@ from pyppeteer.browser import Browser
 from pyppeteer.page import Page
 import asyncio
 from typing import Dict, List
-import datetime
+
 from os import system
 from time import sleep
+# from getViewState import getViewState
+
 
 class GetCookies:
     """
@@ -62,8 +64,8 @@ class GetCookies:
                 print('[ERROR]: Our ip addr is banned by the SHU.')
                 system('pgrep chrome | xargs kill -s 9')
                 print('[INFO]: Kill the all chrome')
-                print('[WAIT]: 10mins.')
-                sleep(600)
+                print('[WAIT]: 5mins.')
+                sleep(300)
             else:
                 break
 
@@ -79,6 +81,8 @@ class GetCookies:
         for each in cookies_list:
             cookies_dict[each['name']] = each['value']
         print('[INFO]: The cookies has been got.')
+
+        self.vstate =  getViewState(cookies_dict)
         return cookies_dict
 
 
@@ -104,21 +108,18 @@ class GetCookies:
         await page.type('#password', self.user_info['password'])
         await page.click('#submit')
         await page.waitFor('body')
-        while True:
-            try:
-                await page.goto(f'https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx?day={getYesterday()}&t=1')
-                await page.waitFor('input#__VIEWSTATE',{'timeout':500})
-                break
-            except Exception as e:
-                print(e)
-                pass
-        self.vstate =  await page.querySelectorEval('#__VIEWSTATE','node => node.value')
+        # while True:
+        #     try:
+        #         await page.goto(f'https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx?day={getYesterday()}&t=1')
+        #         await page.waitFor('input#__VIEWSTATE',{'timeout':500})
+        #         break
+        #     except Exception as e:
+        #         print(e)
+        #         pass
+        # self.vstate =  await page.querySelectorEval('#__VIEWSTATE','node => node.value')
+        
 
-def getYesterday(): 
-    today=datetime.date.today() 
-    oneday=datetime.timedelta(days=1) 
-    yesterday=today-oneday  
-    return yesterday
+
 
 if __name__ == "__main__":
     from time import sleep
@@ -126,5 +127,6 @@ if __name__ == "__main__":
         obj_get = GetCookies('16123113', '130E2d898')
         cookies = obj_get.cookies()
         print(cookies)
+        break
         # sleep(3)
     # print(getYesterday())
