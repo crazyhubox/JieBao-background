@@ -1,16 +1,17 @@
+from test import report
 from .test import gen_url, datetime
 
 
 class Reporter:
     def __init__(self, Requester=None) -> None:
-        self.__req = Requester
+        self.requester = Requester
 
     def setRequester(self, Requester):
-        self.__req = Requester
+        self.requester = Requester
 
     def PreviousReport(self, startDate: str):
         for each_date, t in gen_url(startDate):
-            self.__req.report(each_date, t)
+            self.requester.report(each_date, t)
 
     def TodayReport(self):
         today = datetime.date.today()
@@ -18,7 +19,18 @@ class Reporter:
         self.MoonRepot(today)
 
     def SunReport(self, date: str):
-        self.__req.report(date, 1)
+        self.requester.report(date, 1)
 
     def MoonRepot(self, date: str):
-        self.__req.report(date, 2)
+        self.requester.report(date, 2)
+
+
+class AsyncReporter(Reporter):
+    def __init__(self, Requester=None) -> None:
+        super().__init__(Requester=Requester)
+
+    def PreviousReport(self,startDate):
+        datas = []
+        for each_date,t in  gen_url(start_date=startDate):
+            datas.append((each_date,t))
+        self.requester.asyncPost(datas)

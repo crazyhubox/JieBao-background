@@ -2,9 +2,11 @@ import requests
 from requests.models import HTTPError
 import base64
 from time import time
-
+from re import compile
 
 class Login:
+    cookie_find = compile(r'\.ncov2019selfreport=(.+?);')
+    
     def __init__(self, username: str, password: str) -> None:
         self.session = requests.session()
         self.username = username
@@ -28,19 +30,6 @@ class Login:
         self.username = username
         self.password = password
 
-    def __getUrlParam(self):
-        """This functon is used for tests.
-        """
-        headers = self.headers.urlParamHeaders()
-        response = self.session.get(
-            'http://selfreport.shu.edu.cn/', headers=headers)
-        print(response.status_code)
-        r_lsit = response.history
-        url_param = r_lsit[3].headers['location']
-        cookies = r_lsit[3].headers['set-cookie']
-        self.urlParam = url_param
-        self.cookie = cookies
-        return url_param
 
     def getUrlParamTail(self):
         """Generate the base64 url param.
@@ -68,7 +57,9 @@ class Login:
         """
         response = self.loginAPI()
         r_lsit = response.history
-
+        # for each in r_lsit:
+        #     print(each.headers)
+            
         if not self.__checkAPI(r_lsit):
             raise ValueError('[ERROR]: UserInfo ERROR.')
 
@@ -102,10 +93,11 @@ class Login:
     def __formatCookies(self, cookie: str) -> dict:
         if not cookie:
             return
-        c1 = cookie.split(';')[0]
-        cookies_list = c1.split('=')
-        key = cookies_list[0]
-        value = cookies_list[1]
+        res = self.cookie_find.search(cookie)
+        if not res:
+            return 
+        key = '.ncov2019selfreport'
+        value = res[1]
         return {key: value}
 
 
@@ -139,7 +131,7 @@ class Headers:
 
 
 if __name__ == "__main__":
-    l_obj = Login('15122760', '1212CYZzy')
+    l_obj = Login('16123113', '130E2d898')
     cookie = l_obj.getCookie()
     print(cookie)
     # print(time())
