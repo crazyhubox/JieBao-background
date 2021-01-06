@@ -1,4 +1,3 @@
-from test import report
 from .test import gen_url, datetime
 
 

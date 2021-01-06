@@ -1,9 +1,6 @@
 from redis import Redis
 import base64
 
-
-
-
 class BaseRedis:
     """Connect the Redis and """
     def __init__(self):
@@ -122,7 +119,6 @@ if __name__ == "__main__":
     # for each in u_obj.getNewUser():
     #     i,p = u_obj.cleanUserInfo(each)
     #     print(i,p)
-    
-    
+
     # u_obj.currentUserInfo = '16123113,MTMwRTJkODk4'
     # u_obj.removeErrorUser()
