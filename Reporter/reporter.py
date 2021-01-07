@@ -3,10 +3,49 @@ import datetime
 from typing import Union
 from datetime import date
 
+class Reporter:
+    def __init__(self, Requester=None) -> None:
+        self.requester = Requester
+
+    def setRequester(self, Requester):
+        self.requester = Requester
+
+    def PreviousReport(self, startDate: str):
+        for each_date, t in gen_url(startDate):
+            self.requester.report(each_date, t)
+
+    def TodayReport(self):
+        today = datetime.date.today()
+        self.SunReport(today)
+        self.MoonRepot(today)
+
+    def SunReport(self, date: str):
+        self.requester.report(date, 1)
+
+    def MoonRepot(self, date: str):
+        self.requester.report(date, 2)
+
+
+class AsyncReporter(Reporter):
+    def __init__(self, Requester=None) -> None:
+        super().__init__(Requester=Requester)
+
+    def PreviousReport(self,startDate):
+        datas = []
+        for each_date,t in  gen_url(start_date=startDate):
+            datas.append((each_date,t))
+        self.requester.asyncPost(datas)
+        
+        
+        
+
+
 def get_daysFromMonth(year,month):
     monthRange = calendar.monthrange(year, month)
     daysCount = monthRange[1]
     return daysCount
+
+
 
 def gen_url(start_date:Union[str,date]):
     """
@@ -55,6 +94,8 @@ def gotoNextMonth(day_int, mon_int, year_int):
         mon_int = mon_int - 12
     day_int = 1
     return day_int, mon_int, year_int
+
+
 
 
 def check_date(start_date):

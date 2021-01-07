@@ -1,4 +1,4 @@
-from Requets.PostRequest import PostRequest
 from .PostRequest import PostRequest
+from .Login import Login,ProxyLogin
 
-__all__ = ['PostRequest']
+__all__ = ['PostRequest','Login','ProxyLogin']

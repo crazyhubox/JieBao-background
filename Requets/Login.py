@@ -1,8 +1,9 @@
 import requests
-from requests.models import HTTPError
 import base64
 from time import time
 from re import compile
+import datetime
+from parsel import Selector
 
 class Login:
     cookie_find = compile(r'\.ncov2019selfreport=(.+?);')
@@ -48,6 +49,7 @@ class Login:
     def checkUserInfo(self, username: str, password: str) -> bool:
         """Return False means the UserInfo is discorrect.
         """
+        print(username,password)
         self.setUserInfo(username=username, password=password)
         response = self.loginAPI()
         return self.__checkAPI(response.history)
@@ -69,6 +71,7 @@ class Login:
 # 15122760  1212CYZzy
 # 16121337,1997913Was
     def loginAPI(self):
+        proxies = self.headers.proxies()
         urlParam = self.getUrlParamTail()
         headers = self.headers.loginHeaders()
         data = {
@@ -79,13 +82,19 @@ class Login:
 
         response = self.session.post(
             f'https://newsso.shu.edu.cn/login/{urlParam}', headers=headers, data=data)
+        # response = self.session.post(
+        #     f'https://newsso.shu.edu.cn/login/{urlParam}', headers=headers, data=data,proxies=proxies)
         assert response.status_code == 200
         return response
 
     def __checkAPI(self, res_history: list) -> bool:
         """Checking if the 'Set-Cookie' exist in the Headers to check out the userInfo. 
         """
+        if len(res_history) < 3:
+            return False
+        
         for each in res_history:
+            # print(each.headers)
             if 'Set-Cookie' in each.headers:
                 return True
         return False
@@ -99,6 +108,74 @@ class Login:
         key = '.ncov2019selfreport'
         value = res[1]
         return {key: value}
+
+    def getViewState(self,cookies_:dict):
+        yesterday = str(self.getYesterday())
+        cookies = self.cookie
+        headers = self.headers.getViewStateHeaders()
+        params = (
+            ('day', yesterday),
+            ('t', '2'),
+        )
+        response = self.session.get('https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx', headers=headers, params=params, cookies=cookies)
+        if response.status_code == 200:
+            print('Viewstate has been got successfully.')
+
+        html = response.text
+        # print(html)
+        find = Selector(text=html)
+        res  = find.css('#__VIEWSTATE::attr(value)').get()
+        # print(res)
+        assert res is not None
+        return res
+
+    @staticmethod
+    def getYesterday(): 
+        today=datetime.date.today() 
+        oneday=datetime.timedelta(days=1) 
+        yesterday=today-oneday  
+        return yesterday
+
+
+
+class ProxyLogin(Login):
+    def __init__(self, username: str, password: str) -> None:
+        super().__init__(username, password)
+        self.proxies = self.headers.proxies()
+    
+    def loginAPI(self):
+        urlParam = self.getUrlParamTail()
+        headers = self.headers.loginHeaders()
+        data = {
+            'username': self.username,
+            'password': self.password,
+            'login_submit': ''
+        }
+
+        response = self.session.post(
+            f'https://newsso.shu.edu.cn/login/{urlParam}', headers=headers, data=data,proxies=self.proxies)
+        assert response.status_code == 200
+        return response 
+        
+
+    def getViewState(self,cookies_:dict):
+        yesterday = str(self.getYesterday())
+        cookies = self.cookie
+        headers = self.headers.getViewStateHeaders()
+        params = (
+            ('day', yesterday),
+            ('t', '2'),
+        )
+        response = self.session.get('https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx', headers=headers, params=params, cookies=cookies,proxies=self.proxies)
+        if response.status_code == 200:
+            print('Viewstate has been got successfully.')
+
+        html = response.text
+        # print(html)
+        find = Selector(text=html)
+        res  = find.css('#__VIEWSTATE::attr(value)').get()
+        assert res is not None
+        return res
 
 
 class Headers:
@@ -128,11 +205,50 @@ class Headers:
             'Referer': f'https://newsso.shu.edu.cn',
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
         }
+        
+    @staticmethod
+    def getViewStateHeaders():
+        return {
+        'Host': 'selfreport.shu.edu.cn',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36 Edg/87.0.664.66',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-User': '?1',
+        'Sec-Fetch-Dest': 'document',
+        'Referer': 'https://selfreport.shu.edu.cn/XueSFX/HalfdayReport_History.aspx',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    }    
+        
+    
+    @staticmethod
+    def proxies():
+    #http代理接入服务器地址端口
+        proxyHost = "http-proxy-t3.dobel.cn"
+        proxyPort = "9180"
 
+        #账号密码
+        proxyUser = "CRAZYHU1AAAKQT80"
+        proxyPass = "Ls5qPsJi"
+
+        proxyMeta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
+                "host" : proxyHost,
+                "port" : proxyPort,
+                "user" : proxyUser,
+                "pass" : proxyPass,
+        }
+
+        proxies = {
+                "http"  : proxyMeta,
+                "https" : proxyMeta,
+        }
+        return proxies
 
 if __name__ == "__main__":
-    l_obj = Login('16123113', '130E2d898')
-    cookie = l_obj.getCookie()
-    print(cookie)
+    pass
+    # cookie = l_obj.checkUserInfo('20721681','Aa961028')
+    
     # print(time())
     # print(l_obj.getUrlParam())

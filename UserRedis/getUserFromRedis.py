@@ -105,7 +105,14 @@ if __name__ == "__main__":
     # t_key = base64.b64encode(t_str.encode())
     
     # 20721681 Aa961028
-    t_key_str=  'QWE5NjEwMjg=' 
+    # 18124274 Swsn990826
+    # 18121145 Fy20001003
+    # 15122557 SHENjian0512
+    # 18121142 Xiwanwan0615
+    # 18123467 Kpsj981002
+    # 18121121 a610bq9262C
+    # 19122044 
+    t_key_str=  'Wnh5MDExMDIy' 
     # t_key_str=  t_key.decode()
     print(t_key_str) 
     pas = u_obj.ts_pw(t_key_str)

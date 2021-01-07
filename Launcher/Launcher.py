@@ -1,15 +1,9 @@
-from GetCookies import Login,getViewState
-from Requets import PostRequest
-from Reporter import Reporter
 import schedule
 from time import sleep
 from datetime import date,datetime,timedelta
-from UserRedis import UserInfoRedis
-
 
 class Launcher:
-    
-    def __init__(self,accounts:UserInfoRedis, loginer:Login, requester:PostRequest, reporter:Reporter,):
+    def __init__(self,accounts, loginer, requester, reporter,):
         self.accounts = accounts
         self.loginer = loginer
         self.requester = requester
@@ -19,7 +13,7 @@ class Launcher:
     def selectReport(self, user, passw, flag):
         self.loginer.setUserInfo(username=user,password=passw)
         cookies = self.loginer.getCookie()
-        view_state = getViewState(cookies)
+        view_state = self.loginer.getViewState(cookies)
         self.requester.setUserInfo(cookies,view_state)
         self.reporter.setRequester(self.requester)
         # self.reporter.PreviousReport('2020-12-10')
@@ -31,7 +25,7 @@ class Launcher:
     def dayReport(self, user, passw):
         self.loginer.setUserInfo(username=user,password=passw)
         cookies = self.loginer.getCookie()
-        view_state = getViewState(cookies)
+        view_state = self.loginer.getViewState(cookies)
         self.requester.setUserInfo(cookies,view_state)
         self.reporter.setRequester(self.requester)
         self.reporter.SunReport(self.today)
@@ -40,7 +34,7 @@ class Launcher:
     def userPoll(self, user, passw, start_date):
         self.loginer.setUserInfo(username=user,password=passw)
         cookies = self.loginer.getCookie()
-        view_state = getViewState(cookies)
+        view_state = self.loginer.getViewState(cookies)
         self.requester.setUserInfo(cookies,view_state)
         self.reporter.setRequester(self.requester)
         self.reporter.PreviousReport(start_date)
@@ -50,7 +44,7 @@ class Launcher:
 
 
 class Actuator(Launcher):
-    def __init__(self, accounts: UserInfoRedis, loginer: Login, requester: PostRequest, reporter: Reporter):
+    def __init__(self, accounts, loginer, requester, reporter):
         super().__init__(accounts, loginer, requester, reporter)
     
     def Sun_Moon(self,flag):
@@ -72,10 +66,11 @@ class Actuator(Launcher):
     def NewUser(self):
         """Complete the morning and evening reports of one user."""
         for user,passw,each in self.accounts.getNewUser():
-            print(F'[INFO]: NEW_USER -- {user}')
+            print(F'[INFO]: NEW_USER -- {user}',datetime.now())
             self.dayReport(user, passw)
             print('='*100)
             self.accounts.saddUser(self.accounts.finishTables,each)
+            # sleep()
         else: 
             pass
 
@@ -83,7 +78,7 @@ class Actuator(Launcher):
         """"Complete the reports of past 30 days."""
         start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         for user,passw,each in self.accounts.getNewUser():
-            print(F'[INFO]: NEW_USER -- {user}')
+            print(F'[INFO]: NEW_USER -- {user}',datetime.now())
             self.userPoll(user, passw, start_date)
             print('='*100)
             self.accounts.saddUser(self.accounts.finishTables,each)

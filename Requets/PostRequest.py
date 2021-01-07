@@ -3,7 +3,8 @@ from typing import Dict, List, Tuple
 import requests
 from re import compile
 import asyncio
-from aiohttp import ClientSession, payload_streamer
+from aiohttp import ClientSession
+from requests.models import HTTPError
 # from GetCookies import GetCookies
 # Give the cookies of the user to the class 'PostRequest'.
 # Give the 'date' and the 'flag' of the report url and the report method will post the selfReport.
@@ -166,7 +167,7 @@ class PostRequest:
             if res:
                 print(res[1])
             else:
-                print()
+                raise HTTPError('AsyncPost Error.')
 
     def asyncPost(self, urls: List[Tuple[str, str]]):
         async def run():
