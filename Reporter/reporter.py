@@ -35,9 +35,6 @@ class AsyncReporter(Reporter):
         for each_date,t in  gen_url(start_date=startDate):
             datas.append((each_date,t))
         self.requester.asyncPost(datas)
-        
-        
-        
 
 
 def get_daysFromMonth(year,month):

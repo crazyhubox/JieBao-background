@@ -1,41 +1,47 @@
+from requests.models import HTTPError
 import schedule
 from time import sleep
-from datetime import date,datetime,timedelta
+from datetime import date, datetime, timedelta
+from ErroHandler.merry import MyMerry
+import os
+ERRORHANDLER = MyMerry()
 
 class Launcher:
-    def __init__(self,accounts, loginer, requester, reporter,):
+    def __init__(self, accounts, loginer, requester, reporter, ):
         self.accounts = accounts
         self.loginer = loginer
         self.requester = requester
         self.reporter = reporter
-        self.today = date.today()
+        ERRORHANDLER.setObject(self)
         
     def selectReport(self, user, passw, flag):
-        self.loginer.setUserInfo(username=user,password=passw)
+        today = date.today()
+        self.loginer.setUserInfo(username=user, password=passw)
         cookies = self.loginer.getCookie()
-        view_state = self.loginer.getViewState(cookies)
-        self.requester.setUserInfo(cookies,view_state)
+        view_state = self.loginer.getViewState()
+        print(cookies, view_state)
+        self.requester.setUserInfo(cookies, view_state)
         self.reporter.setRequester(self.requester)
-        # self.reporter.PreviousReport('2020-12-10')
         if flag:
-            self.reporter.SunReport(self.today)
+            self.reporter.SunReport(today)
         else:
-            self.reporter.MoonRepot(self.today)
+            self.reporter.MoonRepot(today)
 
     def dayReport(self, user, passw):
-        self.loginer.setUserInfo(username=user,password=passw)
+        today = date.today()
+        self.loginer.setUserInfo(username=user, password=passw)
         cookies = self.loginer.getCookie()
-        view_state = self.loginer.getViewState(cookies)
-        self.requester.setUserInfo(cookies,view_state)
+        view_state = self.loginer.getViewState()
+        self.requester.setUserInfo(cookies, view_state)
         self.reporter.setRequester(self.requester)
-        self.reporter.SunReport(self.today)
-        self.reporter.MoonRepot(self.today)
+        self.reporter.SunReport(today)
+        self.reporter.MoonRepot(today)
 
     def userPoll(self, user, passw, start_date):
-        self.loginer.setUserInfo(username=user,password=passw)
+        self.loginer.setUserInfo(username=user, password=passw)
         cookies = self.loginer.getCookie()
-        view_state = self.loginer.getViewState(cookies)
-        self.requester.setUserInfo(cookies,view_state)
+        view_state = self.loginer.getViewState()
+        self.requester.setUserInfo(cookies, view_state)
         self.reporter.setRequester(self.requester)
         self.reporter.PreviousReport(start_date)
 
@@ -46,57 +52,101 @@ class Launcher:
 class Actuator(Launcher):
     def __init__(self, accounts, loginer, requester, reporter):
         super().__init__(accounts, loginer, requester, reporter)
+
+    @ERRORHANDLER._try
+    def selectReport(self, user, passw, flag):
+        return super().selectReport(user, passw, flag)
     
-    def Sun_Moon(self,flag):
+    @ERRORHANDLER._except(ValueError)
+    def handleValueError(self,e):
+        if e.args[0] == '[ERROR]: UserInfo ERROR.':
+            self.accounts.removeErrorUser()
+
+    @ERRORHANDLER._except(KeyboardInterrupt)
+    def handleKeyboardInterrupt(self,k):
+        print(k.args)
+        self.accounts.recoverErroUer()
+        import os
+        os._exit(0)#解释器直接退出
+
+    @ERRORHANDLER._except(Exception)
+    def handleException(self,e):
+        print(e.args)
+        self.accounts.recoverErroUer()
+            
+    
+    def Sun_Moon(self, flag):
         """Complete the morning and evening reports of all users."""
         for user, passw in self.accounts.ReadUserInfo():
-            print('[INFO]:',user)
-            try:
-                self.selectReport(user, passw, flag)
-                print('='*100)
-            except ValueError as e:
-                if e.args[0] == '[ERROR]: UserInfo ERROR.':
-                    self.accounts.removeErrorUser()
-                    continue
-            except:
-                self.accounts.recoverErroUer()
+            print('[INFO]:', user)
+            self.selectReport(user, passw, flag)
+            print('=' * 100)
             sleep(10)
-        print('[Finished]:',datetime.now())
+        print('[Finished]:', datetime.now())
+
 
     def NewUser(self):
         """Complete the morning and evening reports of one user."""
-        for user,passw,each in self.accounts.getNewUser():
-            print(F'[INFO]: NEW_USER -- {user}',datetime.now())
+        for user, passw, each in self.accounts.getNewUser():
+            print(F'[INFO]: NEW_USER -- {user}', datetime.now())
             self.dayReport(user, passw)
-            print('='*100)
-            self.accounts.saddUser(self.accounts.finishTables,each)
+            print('=' * 100)
+            self.accounts.saddUser(self.accounts.finishTables, each)
             # sleep()
-        else: 
+        else:
             pass
 
     def NewUserTotal(self):
         """"Complete the reports of past 30 days."""
         start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-        for user,passw,each in self.accounts.getNewUser():
-            print(F'[INFO]: NEW_USER -- {user}',datetime.now())
+        for user, passw, each in self.accounts.getNewUser():
+            print(F'[INFO]: NEW_USER -- {user}', datetime.now())
             self.userPoll(user, passw, start_date)
-            print('='*100)
-            self.accounts.saddUser(self.accounts.finishTables,each)
+            print('=' * 100)
+            self.accounts.saddUser(self.accounts.finishTables, each)
         else:
             pass
-    
+
     def schedule(self):
-        schedule.every().day.at("06:30").do(self.Sun_Moon,flag=1)
-        schedule.every().day.at("19:15").do(self.Sun_Moon,flag=0)
+        schedule.every().day.at("06:30").do(self.Sun_Moon, flag=1)
+        schedule.every().day.at("19:15").do(self.Sun_Moon, flag=0)
         # schedule.every().second.do(NewUser,*[self.today, self.accounts, self.loginer, self.requester, self.reporter])
         schedule.every().second.do(self.NewUserTotal)
         while True:
             schedule.run_pending()
             sleep(1)
 
+
+class TroubleRemoval(Actuator):
+    def __init__(self, accounts, loginer, requester, reporter):
+        super().__init__(accounts, loginer, requester, reporter)
+
+    @ERRORHANDLER._try
+    def dayReport(self, user, passw):
+        return super().dayReport(user, passw)
+
+
+    def Sun_Moon(self):
+        """Complete the morning and evening reports of all users."""
+        for user, passw in self.accounts.ReadUserInfo():
+            print('[INFO]:', user)
+            self.dayReport(user, passw)
+            print('=' * 100)
+        print('[Finished]:', datetime.now())
+
+
+    def Total(self):
+        start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+        for user, passw in self.accounts.ReadUserInfo():
+            print('[INFO]:', user)
+            self.userPoll(user, passw, start_date)
+            print('=' * 100)
+        else:
+            pass
+        print('[Finished]:', datetime.now())
+
 if __name__ == "__main__":
     # main()
     # reporter = Launcher()
     print(date.today())
     # reporter.schedule()
-

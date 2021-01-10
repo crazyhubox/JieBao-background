@@ -1,41 +1,6 @@
-from redis import Redis
+from .Base import BaseRedis
+
 import base64
-
-class BaseRedis:
-    """Connect the Redis and """
-    def __init__(self):
-        Host = '49.235.241.94'
-        self.rdb = Redis(host=Host, password='130298',
-                         db=0, decode_responses=True)
-        self.tempTables = 'temp_users'        
-        self.pubTables = 'pub_users'
-        self.finishTables = 'finished_users'
-
-    def popUser(self):
-        return self.rdb.spop(self.tempTables)
-
-    def getTotalUsers(self):
-        # users = self.rdb.smembers('users')
-        users = self.rdb.smembers(self.pubTables)
-        return users
-
-    def addUser(self, userinfo: str):
-        self.rdb.sadd(self.pubTables, userinfo)
-
-    def removeErrorUser(self):
-        """Remove the current userInfo."""
-        print('[INFO]: Remove the ERROR userInfo. -->',self.currentUserInfo)
-        # pub_users finished_users
-        self.rdb.srem(self.pubTables,self.currentUserInfo)
-        self.rdb.srem(self.finishTables,self.currentUserInfo)
-
-    def recoverErroUer(self):
-        self.rdb.sadd(self.tempTables, self.currentUserInfo)
-
-
-    def saddUser(self,keyname:str,userinfo:str):
-        self.rdb.sadd(keyname, userinfo)
-
 
 class UserInfoRedis(BaseRedis):
 
@@ -99,6 +64,9 @@ class UserInfoRedis(BaseRedis):
 if __name__ == "__main__":
     # print(ReadUserInfo())
     u_obj = UserInfoRedis()
+    for a,b,c in u_obj.getNewUser():
+        print(a)
+
     # u_obj.__initUserInfo()
     # 18121253,YnY381381
     # t_str ='WW5ZMzgxMzgx'
@@ -111,10 +79,10 @@ if __name__ == "__main__":
     # 18121142 Xiwanwan0615
     # 18123467 Kpsj981002
     # 18121121 a610bq9262C
-    # 19122044 
-    t_key_str=  'Wnh5MDExMDIy' 
+    # 20124323,QXM4MTIyMTk0
+    t_key_str=  'QXM4MTIyMTk0'
     # t_key_str=  t_key.decode()
-    print(t_key_str) 
+    print(t_key_str)
     pas = u_obj.ts_pw(t_key_str)
     print(pas)
     # for each_u,each_p in u_obj.ReadUserInfo():

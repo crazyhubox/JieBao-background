@@ -4,6 +4,7 @@ from time import time
 from re import compile
 import datetime
 from parsel import Selector
+from requests.models import HTTPError
 
 class Login:
     cookie_find = compile(r'\.ncov2019selfreport=(.+?);')
@@ -71,7 +72,6 @@ class Login:
 # 15122760  1212CYZzy
 # 16121337,1997913Was
     def loginAPI(self):
-        proxies = self.headers.proxies()
         urlParam = self.getUrlParamTail()
         headers = self.headers.loginHeaders()
         data = {
@@ -82,9 +82,8 @@ class Login:
 
         response = self.session.post(
             f'https://newsso.shu.edu.cn/login/{urlParam}', headers=headers, data=data)
-        # response = self.session.post(
-        #     f'https://newsso.shu.edu.cn/login/{urlParam}', headers=headers, data=data,proxies=proxies)
-        assert response.status_code == 200
+        if response.status_code != 200:
+            raise HTTPError('Cookies is not 200.')
         return response
 
     def __checkAPI(self, res_history: list) -> bool:
@@ -109,7 +108,7 @@ class Login:
         value = res[1]
         return {key: value}
 
-    def getViewState(self,cookies_:dict):
+    def getViewState(self):
         yesterday = str(self.getYesterday())
         cookies = self.cookie
         headers = self.headers.getViewStateHeaders()
@@ -141,8 +140,11 @@ class Login:
 class ProxyLogin(Login):
     def __init__(self, username: str, password: str) -> None:
         super().__init__(username, password)
-        self.proxies = self.headers.proxies()
-    
+        self.__proxies = self.headers.proxies()
+
+    def setProxies(self,proxy):
+        self.__proxies = proxy
+
     def loginAPI(self):
         urlParam = self.getUrlParamTail()
         headers = self.headers.loginHeaders()
@@ -151,14 +153,18 @@ class ProxyLogin(Login):
             'password': self.password,
             'login_submit': ''
         }
-
+        proxies = {
+            "http": self.__proxies,
+            "https": self.__proxies,
+        }
         response = self.session.post(
-            f'https://newsso.shu.edu.cn/login/{urlParam}', headers=headers, data=data,proxies=self.proxies)
-        assert response.status_code == 200
+            f'https://newsso.shu.edu.cn/login/{urlParam}', headers=headers, data=data,proxies=proxies,timeout=10)
+        if response.status_code != 200:
+            raise HTTPError('Cookies status is not 200.')
         return response 
         
 
-    def getViewState(self,cookies_:dict):
+    def getViewState(self):
         yesterday = str(self.getYesterday())
         cookies = self.cookie
         headers = self.headers.getViewStateHeaders()
@@ -166,7 +172,12 @@ class ProxyLogin(Login):
             ('day', yesterday),
             ('t', '2'),
         )
-        response = self.session.get('https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx', headers=headers, params=params, cookies=cookies,proxies=self.proxies)
+        proxies = {
+            "http": self.__proxies,
+            "https": self.__proxies,
+        }
+        response = self.session.get('https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx', headers=headers, params=params, cookies=cookies, proxies=proxies)
+        # response = self.session.get('https://selfreport.shu.edu.cn/XueSFX/HalfdayReport.aspx', headers=headers, params=params, cookies=cookies)
         if response.status_code == 200:
             print('Viewstate has been got successfully.')
 
@@ -244,7 +255,7 @@ class Headers:
                 "http"  : proxyMeta,
                 "https" : proxyMeta,
         }
-        return proxies
+        return proxyMeta
 
 if __name__ == "__main__":
     pass
