@@ -109,7 +109,7 @@ class Actuator(Launcher):
 
     def schedule(self):
         schedule.every().day.at("06:30").do(self.Sun_Moon, flag=1)
-        schedule.every().day.at("19:15").do(self.Sun_Moon, flag=0)
+        schedule.every().day.at("18:15").do(self.Sun_Moon, flag=0)
         # schedule.every().second.do(NewUser,*[self.today, self.accounts, self.loginer, self.requester, self.reporter])
         schedule.every().second.do(self.NewUserTotal)
         while True:

@@ -129,3 +129,12 @@ dmypy.json
 .pyre/
 .vscode
 .idea
+Notification/.DS_Store
+test/.DS_Store
+test
+.DS_Store
+test_UserRedis.py
+tempTest.py
+newIP.txt
+ips.txt
+ips.py

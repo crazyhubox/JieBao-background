@@ -16,19 +16,22 @@ def main():
     accounts = UserInfoRedis()
     loginer = ProxyLogin(...,...)
     reporter = AsyncReporter()
+    req_obj = PostRequest()
+    
     while True:
         
         for each_p,t in p.getRawProxies():
             # print(each_p,t)
             # return 
-            loginer.setProxies(each_p)
-            req_obj = PostRequest(proxy=each_p)
+            loginer.setProxy(each_p)
+            req_obj.setProxy(each_p)
             launch = TroubleRemoval(accounts=accounts,loginer=loginer,requester=req_obj,reporter=reporter)
             try:
-                launch.Sun_Moon()
-                # launch.Total()
+                # launch.Sun_Moon()
+                launch.Total()
             except HTTPError as h:
-                print(h.args)
+                print(h.args,'==============')
+                accounts.recoverErroUer()
                 '''检查t'''
                 if checkTimeout(t):
                     '''重新提取'''

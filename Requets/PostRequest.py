@@ -23,6 +23,9 @@ class PostRequest:
         self._cookie = cookie
         self.viewstate = viewstate
 
+    def setProxy(self,proxy:str):
+        self.proxy = proxy
+
     def report(self, date: str, state: str, filelog=False):
         cookies = self._cookie
 

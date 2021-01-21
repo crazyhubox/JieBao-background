@@ -69,8 +69,6 @@ class Login:
         cookie = r_lsit[2].headers['Set-Cookie']
         self.cookie = self.__formatCookies(cookie)
 
-# 15122760  1212CYZzy
-# 16121337,1997913Was
     def loginAPI(self):
         urlParam = self.getUrlParamTail()
         headers = self.headers.loginHeaders()
@@ -142,7 +140,7 @@ class ProxyLogin(Login):
         super().__init__(username, password)
         self.__proxies = self.headers.proxies()
 
-    def setProxies(self,proxy):
+    def setProxy(self,proxy):
         self.__proxies = proxy
 
     def loginAPI(self):
@@ -233,7 +231,6 @@ class Headers:
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     }    
         
-    
     @staticmethod
     def proxies():
     #http代理接入服务器地址端口

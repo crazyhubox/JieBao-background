@@ -66,34 +66,7 @@ if __name__ == "__main__":
     u_obj = UserInfoRedis()
     for a,b,c in u_obj.getNewUser():
         print(a)
-
-    # u_obj.__initUserInfo()
-    # 18121253,YnY381381
-    # t_str ='WW5ZMzgxMzgx'
-    # t_key = base64.b64encode(t_str.encode())
-    
-    # 20721681 Aa961028
-    # 18124274 Swsn990826
-    # 18121145 Fy20001003
-    # 15122557 SHENjian0512
-    # 18121142 Xiwanwan0615
-    # 18123467 Kpsj981002
-    # 18121121 a610bq9262C
-    # 20124323,QXM4MTIyMTk0
-    t_key_str=  'QXM4MTIyMTk0'
-    # t_key_str=  t_key.decode()
+    t_key_str=  ''
     print(t_key_str)
     pas = u_obj.ts_pw(t_key_str)
     print(pas)
-    # for each_u,each_p in u_obj.ReadUserInfo():
-    #     print(each_u,each_p)
-
-    # test_set = u_obj.getNewUser()
-    # print(test_set)
-
-    # for each in u_obj.getNewUser():
-    #     i,p = u_obj.cleanUserInfo(each)
-    #     print(i,p)
-
-    # u_obj.currentUserInfo = '16123113,MTMwRTJkODk4'
-    # u_obj.removeErrorUser()
