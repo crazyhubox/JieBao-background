@@ -37,6 +37,13 @@ class AsyncReporter(Reporter):
         self.requester.asyncPost(datas)
 
 
+class VocattionReporter(Reporter):    
+    def TodayReport(self):
+        today = datetime.date.today()
+        self.requester.report(today)
+
+
+# Some tool functions. 
 def get_daysFromMonth(year,month):
     monthRange = calendar.monthrange(year, month)
     daysCount = monthRange[1]

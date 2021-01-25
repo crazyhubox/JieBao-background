@@ -1,6 +1,6 @@
 import requests
 import base64
-from time import time
+from time import process_time_ns, time
 from re import compile
 import datetime
 from parsel import Selector
@@ -61,8 +61,7 @@ class Login:
         response = self.loginAPI()
         r_lsit = response.history
         # for each in r_lsit:
-        #     print(each.headers)
-            
+            # print(each.headers)
         if not self.__checkAPI(r_lsit):
             raise ValueError('[ERROR]: UserInfo ERROR.')
 
@@ -91,7 +90,6 @@ class Login:
             return False
         
         for each in res_history:
-            # print(each.headers)
             if 'Set-Cookie' in each.headers:
                 return True
         return False
@@ -187,6 +185,19 @@ class ProxyLogin(Login):
         return res
 
 
+class LoginDayReport(Login):
+    def getViewState(self):
+        cookies = self.cookie
+        headers = self.headers.getViewStateDayReportHeaders()
+        response = requests.get('https://selfreport.shu.edu.cn/DayReport.aspx', headers=headers, cookies=cookies)
+        html = response.text
+        find = Selector(text=html)
+        VIEWSTATE = find.css('input[name=__VIEWSTATE]::attr(value)').get()
+        assert VIEWSTATE is not None
+        return VIEWSTATE
+
+
+
 class Headers:
     @staticmethod
     def urlParamHeaders():
@@ -230,6 +241,22 @@ class Headers:
         'Referer': 'https://selfreport.shu.edu.cn/XueSFX/HalfdayReport_History.aspx',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
     }    
+
+    @staticmethod
+    def getViewStateDayReportHeaders():
+        return {
+        'Host': 'selfreport.shu.edu.cn',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36 Edg/87.0.664.66',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-User': '?1',
+        'Sec-Fetch-Dest': 'document',
+        'Referer': 'https://selfreport.shu.edu.cn/XueSFX/HalfdayReport_History.aspx',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    }    
         
     @staticmethod
     def proxies():
@@ -255,8 +282,9 @@ class Headers:
         return proxyMeta
 
 if __name__ == "__main__":
-    pass
+    l_obj = Login('16123113','130E2d898')
     # cookie = l_obj.checkUserInfo('20721681','Aa961028')
-    
-    # print(time())
-    # print(l_obj.getUrlParam())
+    cookies = l_obj.getCookie()
+    # print(cookies)
+    state = l_obj.getViewState()
+    print(state)

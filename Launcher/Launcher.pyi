@@ -34,3 +34,7 @@ class TroubleRemoval(Launcher):
     def __init__(self, accounts: UserInfoRedis, loginer: Login, requester: PostRequest, reporter: Reporter) -> None: ...
 
     def Total(self) -> None: ...
+
+
+class VocationActuator(Actuator):
+    '''The vocation version for day-report.'''

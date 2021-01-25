@@ -1,4 +1,4 @@
-from Launcher import Actuator
+from Launcher.Launcher import Actuator,VocationActuator
 from Reporter import AsyncReporter
 from UserRedis import UserInfoRedis
 from Requets import Login,PostRequest,ProxyLogin
@@ -15,7 +15,7 @@ def main():
     req_obj = PostRequest()
     reporter = AsyncReporter()
     
-    launch = Actuator()
+    launch = Actuator(accounts=accounts,loginer=loginer,requester=req_obj,reporter=reporter)
     launch.schedule()
     # launch.NewUserTotal()
     # launch.Sun_Moon(0)    
@@ -24,6 +24,9 @@ def main():
     # test_p = ''
     # launch.dayReport(test_u,test_p)
     # launch.userPoll(test_u,test_p,'2020-12-07')
+
+
+
 
 if __name__ == "__main__":
     try:

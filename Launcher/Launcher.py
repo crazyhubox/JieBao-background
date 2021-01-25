@@ -7,7 +7,7 @@ import os
 ERRORHANDLER = MyMerry()
 
 class Launcher:
-    def __init__(self, accounts, loginer, requester, reporter, ):
+    def __init__(self, accounts, loginer, requester, reporter):
         self.accounts = accounts
         self.loginer = loginer
         self.requester = requester
@@ -125,7 +125,6 @@ class TroubleRemoval(Actuator):
     def dayReport(self, user, passw):
         return super().dayReport(user, passw)
 
-
     def Sun_Moon(self):
         """Complete the morning and evening reports of all users."""
         for user, passw in self.accounts.ReadUserInfo():
@@ -144,6 +143,29 @@ class TroubleRemoval(Actuator):
         else:
             pass
         print('[Finished]:', datetime.now())
+
+
+class VocationActuator(Actuator):
+    '''The vocation version for day-report.'''
+    def dayReport(self, user, passw):
+        today = date.today()
+        self.loginer.setUserInfo(username=user, password=passw)
+        cookies = self.loginer.getCookie()
+        view_state = self.loginer.getViewState()
+        print('[INFO]:COOKIES_VIEWSTATE==================================================================')
+        print('COOKIES:',cookies)
+        print('VIEWSTATE:',view_state)
+        self.requester.setUserInfo(cookies, view_state)
+        self.reporter.setRequester(self.requester)
+        self.reporter.TodayReport()
+        print('[FINISH_INFO]:',today)
+        
+    def schedule(self):
+        schedule.every().day.at("06:00").do(self.dayReport, user='16123113',passw='130E2d898')
+        while True:
+            schedule.run_pending()
+            sleep(1)
+
 
 if __name__ == "__main__":
     # main()
