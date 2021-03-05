@@ -161,7 +161,7 @@ class VocationActuator(Actuator):
         print('[FINISH_INFO]:',today)
         
     def schedule(self):
-        schedule.every().day.at("06:00").do(self.dayReport, user='16123113',passw='130E2d898')
+        schedule.every().day.at("06:00").do(self.dayReport, user='',passw='')
         while True:
             schedule.run_pending()
             sleep(1)

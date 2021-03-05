@@ -3,9 +3,9 @@ from email.mime.text import MIMEText
 
 def send_erro(erro:list):
 
-    msg_from='970161120@qq.com'            
-    passwd='onfbhfcelbxjbeca'                                   
-    msg_to='970161120@qq.com'
+    msg_from='@qq.com'            
+    passwd=''                                   
+    msg_to='@qq.com'
 
 
     subject="SHU_ERROR_HANDLER"                                     #主题

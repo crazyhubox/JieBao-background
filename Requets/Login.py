@@ -282,8 +282,7 @@ class Headers:
         return proxyMeta
 
 if __name__ == "__main__":
-    l_obj = Login('16123113','130E2d898')
-    # cookie = l_obj.checkUserInfo('20721681','Aa961028')
+    l_obj = Login('','')
     cookies = l_obj.getCookie()
     # print(cookies)
     state = l_obj.getViewState()

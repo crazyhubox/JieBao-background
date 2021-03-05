@@ -2,8 +2,8 @@ from redis import Redis
 
 class RedisServer:
     def __init__(self) -> None:
-        Host = '49.235.241.94'
-        self.rdb = Redis(host=Host, password='130298',
+        Host = ''
+        self.rdb = Redis(host=Host, password='',
                          db=0, decode_responses=True)
 
 class BaseRedis(RedisServer):

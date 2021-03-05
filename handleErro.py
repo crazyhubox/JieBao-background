@@ -53,7 +53,7 @@ def checkTimeout(left_time:str)->bool:
 
 if __name__ == "__main__":
     main()
-    # test_t = '1610174351'
+    # test_t = ''
     # res = checkTimeout(test_t)
     # print(res)
     # while True:

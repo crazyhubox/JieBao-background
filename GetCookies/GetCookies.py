@@ -124,7 +124,7 @@ class GetCookies:
 if __name__ == "__main__":
     from time import sleep
     for i in range(100):
-        obj_get = GetCookies('16123113', '130E2d898')
+        obj_get = GetCookies('', '')
         cookies = obj_get.cookies()
         print(cookies)
         break

@@ -9,7 +9,7 @@ now = lambda :int(time.time())
 # This base class has defined some functions used frequently.
 class BaseProxy:
     def __init__(self) -> None:
-        self.rdb = Redis(host='49.235.241.94', password='130298', db=0, decode_responses=True)
+        self.rdb = Redis(host='', password='', db=0, decode_responses=True)
         self.localredis = Redis(host='127.0.0.1', db=0, decode_responses=True)
         self.proxy = ''
         self.RawProxiesTable = 'RawProxies'

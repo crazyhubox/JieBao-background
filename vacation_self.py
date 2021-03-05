@@ -1,11 +1,9 @@
-
-from Launcher.Launcher import VocationActuator
 from Reporter.reporter import VocattionReporter
 from Requets.PostRequest import DayReportPost
 from Requets.Login import LoginDayReport
+from Launcher.Launcher import VocationActuator
 import sys
 import traceback
-
 
 def vocation():
     loginer = LoginDayReport(...,...)
@@ -16,7 +14,7 @@ def vocation():
 
 
 if __name__ == '__main__':
-    try:    
+    try:
         vocation()
     except Exception as e:
         exc_type, exc_value, exc_traceback_obj = sys.exc_info()

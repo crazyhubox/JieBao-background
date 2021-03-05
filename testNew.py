@@ -3,7 +3,7 @@ from Requets.PostRequest import DayReportPost
 
 def main():
     l_obj = LoginDayReport(...,...)
-    l_obj.setUserInfo('16123113','130E2d898')
+    l_obj.setUserInfo('','')
     cookies = l_obj.getCookie()
     viewStatus = l_obj.getViewState()
     p_test = DayReportPost()
