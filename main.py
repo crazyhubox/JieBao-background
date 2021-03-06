@@ -34,14 +34,12 @@ if __name__ == "__main__":
     except BaseException as e:
         exc_type, exc_value, exc_traceback_obj = sys.exc_info()
         traceback.print_tb(exc_traceback_obj)
-
         res:list = traceback.format_tb(exc_traceback_obj)
-
-        # res.append(type(e).__name__)
-        # if len(e.args):
-        #     res.append(e.args[0])
-        # from Notification.send_email import send_erro
-        # send_erro(res)
+        res.append(type(e).__name__)
+        if len(e.args):
+            res.append(e.args[0])
+        from Notification.send_email import send_erro
+        send_erro(res)
         print('='*100)
         print(e.args)
         
